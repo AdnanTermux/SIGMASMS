@@ -1,12 +1,12 @@
 [phases.setup]
 nixPkgs = [
-    "php82",
-    "php82Extensions.pdo",
-    "php82Extensions.pdo_mysql", 
-    "php82Extensions.curl",
-    "php82Extensions.json",
-    "php82Extensions.mbstring",
-    "php82Extensions.session"
+    "php",
+    "php83Extensions.pdo",
+    "php83Extensions.pdo_mysql",
+    "php83Extensions.curl",
+    "php83Extensions.mbstring",
+    "php83Extensions.session",
+    "php83Extensions.json"
 ]
 
 [start]
