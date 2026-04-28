@@ -2,26 +2,31 @@
 /**
  * Router for PHP built-in server.
  * Serves static files (CSS, JS, images) directly.
- * Routes all PHP requests normally.
+ * NEVER serves .php files as static — always let PHP execute them.
  */
-$uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$uri  = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 $file = __DIR__ . $uri;
 
-// Serve existing static files directly
-if ($uri !== '/' && file_exists($file) && !is_dir($file)) {
-    $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+// Only serve non-PHP static files directly
+if (
+    $uri !== '/'
+    && file_exists($file)
+    && !is_dir($file)
+    && pathinfo($file, PATHINFO_EXTENSION) !== 'php'
+) {
+    $ext  = strtolower(pathinfo($file, PATHINFO_EXTENSION));
     $mime = match($ext) {
-        'css'  => 'text/css',
-        'js'   => 'application/javascript',
-        'png'  => 'image/png',
+        'css'   => 'text/css',
+        'js'    => 'application/javascript',
+        'png'   => 'image/png',
         'jpg',
-        'jpeg' => 'image/jpeg',
-        'gif'  => 'image/gif',
-        'svg'  => 'image/svg+xml',
-        'ico'  => 'image/x-icon',
-        'woff' => 'font/woff',
-        'woff2'=> 'font/woff2',
-        'ttf'  => 'font/ttf',
+        'jpeg'  => 'image/jpeg',
+        'gif'   => 'image/gif',
+        'svg'   => 'image/svg+xml',
+        'ico'   => 'image/x-icon',
+        'woff'  => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf'   => 'font/ttf',
         default => 'application/octet-stream',
     };
     header('Content-Type: ' . $mime);
@@ -29,5 +34,5 @@ if ($uri !== '/' && file_exists($file) && !is_dir($file)) {
     return true;
 }
 
-// Let PHP handle everything else
+// Let PHP execute everything else (including all .php files)
 return false;
