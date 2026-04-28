@@ -5,7 +5,7 @@
 
 // Database configuration
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'sigma_sms_a2p');
+define('DB_NAME', 'sigma_sms');
 define('DB_USER', 'root');
 define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');
