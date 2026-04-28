@@ -1,31 +1,28 @@
 <?php
 /**
  * Sigma SMS A2P OTP Panel - Configuration
- * Railway-compatible: reads DB credentials from environment variables.
+ * Railway-compatible: reads credentials from Railway environment variables.
  */
 
 // ── Database ──────────────────────────────────────────────────────────────────
-// On Railway: set these in your service Variables tab.
-// Locally: set them in your shell or just hard-code below.
-define('DB_HOST',    getenv('DB_HOST')    ?: 'localhost');
-define('DB_NAME',    getenv('DB_NAME')    ?: 'sigma_sms_a2p');
-define('DB_USER',    getenv('DB_USER')    ?: 'root');
-define('DB_PASS',    getenv('DB_PASS')    ?: '');
+define('DB_HOST',    getenv('MYSQLHOST')     ?: '127.0.0.1');
+define('DB_NAME',    getenv('MYSQLDATABASE') ?: 'sigma_sms_a2p');
+define('DB_USER',    getenv('MYSQLUSER')     ?: 'root');
+define('DB_PASS',    getenv('MYSQLPASSWORD') ?: '');
+define('DB_PORT',    getenv('MYSQLPORT')     ?: '3306');
 define('DB_CHARSET', 'utf8mb4');
 
 // ── Application ───────────────────────────────────────────────────────────────
-// APP_URL: on Railway this is usually https://<your-project>.up.railway.app
-// Set the APP_URL environment variable in Railway, or hard-code your domain below.
 define('APP_NAME',    'Sigma SMS A2P');
-define('APP_URL',     rtrim(getenv('APP_URL') ?: 'http://localhost/sigma_sms', '/'));
+define('APP_URL',     rtrim(getenv('APP_URL') ?: 'http://localhost', '/'));
 define('APP_VERSION', '1.0.0');
 
 // ── External OTP API ──────────────────────────────────────────────────────────
-define('OTP_API_URL',       'https://tempnum.net/api/public/otps');
-define('OTP_FETCH_INTERVAL', 60); // seconds between fetches
+define('OTP_API_URL',        'https://tempnum.net/api/public/otps');
+define('OTP_FETCH_INTERVAL', 60);
 
 // ── Session ───────────────────────────────────────────────────────────────────
-define('SESSION_LIFETIME', 86400); // 24 hours
+define('SESSION_LIFETIME', 86400);
 
 // ── Timezone / Error reporting ────────────────────────────────────────────────
 date_default_timezone_set('UTC');
@@ -37,7 +34,11 @@ ini_set('log_errors',     '1');
 function getDB(): PDO {
     static $pdo = null;
     if ($pdo === null) {
-        $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET;
+        // Force TCP (not Unix socket) by using host= and port= explicitly
+        $dsn = 'mysql:host=' . DB_HOST
+             . ';port='      . DB_PORT
+             . ';dbname='    . DB_NAME
+             . ';charset='   . DB_CHARSET;
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -47,7 +48,8 @@ function getDB(): PDO {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
             http_response_code(500);
-            die(json_encode(['error' => 'Database connection failed']));
+            header('Content-Type: application/json');
+            die(json_encode(['error' => 'Database connection failed: ' . $e->getMessage()]));
         }
     }
     return $pdo;
