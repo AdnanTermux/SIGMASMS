@@ -12,7 +12,7 @@ define('DB_CHARSET', 'utf8mb4');
 
 // Application settings
 define('APP_NAME', 'Sigma SMS A2P');
-define('APP_URL', 'http://localhost/sigma_sms');
+define('APP_URL', 'https://sigmasms.up.railway.app/
 define('APP_VERSION', '1.0.0');
 
 // External OTP API
